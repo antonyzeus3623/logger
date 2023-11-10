@@ -1,4 +1,4 @@
-module antonyzeus_logger
+module github.com/antonyzeus3623/logger
 
 go 1.21
 
