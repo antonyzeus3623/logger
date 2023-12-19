@@ -4,6 +4,7 @@ import (
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"os"
 	"strings"
 	"time"
 )
@@ -30,6 +31,9 @@ func InitLogger(warnFile, infoFile, debugFile, newName string, maxSaveTime, rota
 		cores = append(cores, debugCore)
 	}
 
+	consoleCore := zapcore.NewCore(GetConfig(), zapcore.Lock(zapcore.AddSync(zapcore.AddSync(os.Stdout))), zap.DebugLevel)
+	cores = append(cores, consoleCore)
+
 	core := zapcore.NewTee(cores...)
 
 	_logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1)) // 将调用函数信息记录到日志
@@ -38,12 +42,12 @@ func InitLogger(warnFile, infoFile, debugFile, newName string, maxSaveTime, rota
 }
 
 func GetConfig() zapcore.Encoder {
-	config := zap.NewDevelopmentConfig()
+	config := zap.NewDevelopmentEncoderConfig()
 
-	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	config.EncoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder // 让日志信息级别以大写输出
+	config.EncodeTime = zapcore.ISO8601TimeEncoder
+	config.EncodeLevel = zapcore.CapitalLevelEncoder // 让日志信息级别以大写输出
 
-	return zapcore.NewConsoleEncoder(config.EncoderConfig)
+	return zapcore.NewConsoleEncoder(config)
 }
 
 // SetRotateRule 设置日志切割规则，fileName 包含路径的文件名，如"./cim.log"；newName 替换文件名，建议设置为"-%Y%m%d.log"或"-%Y%m%d%H%M"；maxSaveTime 最长保存时间，建议设置为 time.Hour*24*30； rotationTime 日志切割时间，建议设置为 time.Hour*24
