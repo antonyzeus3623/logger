@@ -36,7 +36,7 @@ func InitLogger(warnFile, infoFile, debugFile, newName string, maxSaveTime, rota
 
 	core := zapcore.NewTee(cores...)
 
-	_logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1)) // 将调用函数信息记录到日志
+	_logger := zap.New(core, zap.AddCaller()) // 将调用函数信息记录到日志
 
 	zap.ReplaceGlobals(_logger)
 }
